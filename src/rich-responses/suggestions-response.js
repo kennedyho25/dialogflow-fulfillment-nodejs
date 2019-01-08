@@ -36,18 +36,16 @@ class Suggestion extends RichResponse {
    * @example
    * let suggestion = new Suggestion('suggestion');
    * const anotherSuggestion = new Suggestion({
-   *     title: 'Choose an item:',
-   *     reply: 'suggestion',
-   *     platform: 'FACEBOOK'
+   *     title: 'suggestion',
+   *     platform: 'ACTIONS_ON_GOOGLE'
    * });
    *
-   * @param {string|Object} suggestion reply string or an object representing a suggestion response
+   * @param {string|Object} suggestion title string or an object representing a suggestion response
    */
   constructor(suggestion) {
     super();
     this.platform = undefined;
     this.replies = [];
-    this.title = suggestion.title;
     if (
       suggestion === undefined ||
       (typeof suggestion === 'object' && !suggestion.title)
@@ -59,8 +57,7 @@ class Suggestion extends RichResponse {
     if (typeof suggestion === 'string') {
       this.replies.push(suggestion);
     } else if (typeof suggestion === 'object') {
-      this.replies.push(suggestion.reply);
-      this.title = suggestion.title;
+      this.replies.push(suggestion.title);
       if (
         typeof suggestion.platform !== 'undefined' &&
         suggestion.platform !== PLATFORMS.UNSPECIFIED
@@ -151,7 +148,6 @@ class Suggestion extends RichResponse {
     } else {
       response = {type: v1MessageObjectSuggestions};
       if (this.replies) response.replies = this.replies;
-      if (this.title) response.title = this.title;
       // Response is the same for generic responses without the platform attribute
       // If the platform is not undefined or the platform is not unspecified
       if (SUPPORTED_RICH_MESSAGE_PLATFORMS.indexOf(platform) > -1) {
@@ -188,12 +184,6 @@ class Suggestion extends RichResponse {
       this.replies.forEach((reply) => {
         response.suggestions.suggestions.push({title: reply});
       });
-    } else if (platform === PLATFORMS.FACEBOOK) {
-      response = {quickReplies: {
-        title: this.title,
-        quickReplies: this.replies,
-        platform: platform
-      }};
     } else {
       response = {quickReplies: {quickReplies: this.replies}};
       // Response is the same for generic responses without the platform attribute
